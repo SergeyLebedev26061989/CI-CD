@@ -19,7 +19,7 @@ jobs:
       DB_PORT: ${{ secrets.DB_PORT }}
     services:
       postgresql_main:
-        image: postgres:12
+        image: postgres:14
         env:
           POSTGRES_DB: ${{ env.DB_NAME }}
           POSTGRES_USER: ${{ env.DB_USER }}
@@ -45,7 +45,7 @@ jobs:
         run: pip install -r requirements.txt
 
       - name: Линтинг
-        run: flake8 api_with_restrictions/ --exclude=api_with_restrictions/venv
+        run: flake8 api_with_restrictions/ --exclude=advertisements/
 
       - name: Тесты
         run: python manage.py test
@@ -59,6 +59,20 @@ jobs:
           DB_PASSWORD: ${{ env.DB_PASSWORD }}
           DB_HOST: ${{ env.DB_HOST }}
           DB_PORT: ${{ env.DB_PORT }}
+
+      - name:  Деплой
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.HOST_NAME }}
+          username: ${{ secrets.HOST_USER }}
+          password: ${{ secrets.HOST_PASSWORD }}
+          script: expect /root/Django_DRF/3.3-permissions/api_with_restrictions/deploy.exp
+#          script: |
+#            cd /root/Django_DRF/3.3-permissions/api_with_restrictions
+#            git pull origin main
+#            source /env/bin/activate
+#            python manage.py migrate
+#            sudo systemctl restart gunicorn
 
 
 
